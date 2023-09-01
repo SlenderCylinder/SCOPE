@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, Button } from "react-native";
 import Scanner from "./screens/Scanner";
 import { createStackNavigator } from "@react-navigation/stack";
 import Home from "./screens/Home";
+import BeneficiaryDetails from "./screens/BenDetails";
 import { NavigationContainer } from "@react-navigation/native";
 import Logo from "./assets/logo"; // Replace with the actual path to your Logo component
 
@@ -14,6 +15,10 @@ function App() {
       <Stack.Navigator>
         <Stack.Screen name="Home" component={Home} />
         <Stack.Screen name="Scanner" component={Scanner} />
+        <Stack.Screen
+          name="BeneficiaryDetails"
+          component={BeneficiaryDetails} // Add the BeneficiaryDetails component as a screen
+        />
       </Stack.Navigator>
       {/* Logo after the header */}
       <View style={styles.logoContainer}>

@@ -1,12 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { Text, View, StyleSheet, Button } from "react-native";
 import { BarCodeScanner } from "expo-barcode-scanner";
+import { useNavigation } from "@react-navigation/native";
 import beneficiaries from "../DB/Bdata.json";
+import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
+import BeneficiaryDetails from "./BenDetails";
 
-export default function Scanner() {
+const Stack = createStackNavigator();
+
+const Scanner = React.memo(() => {
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
   const [scannedData, setScannedData] = useState(null);
+  const [beneficiary, setBeneficiary] = useState(null);
+  const navigation = useNavigation();
 
   useEffect(() => {
     (async () => {
@@ -15,15 +23,25 @@ export default function Scanner() {
     })();
   }, []);
 
-  const handleBarCodeScanned = ({ type, data }) => {
+  const handleBarCodeScanned = ({ data }) => {
     setScannedData(data);
     setScanned(true);
     const beneficiary = beneficiaries.find((b) => b.uniqID === data);
     if (beneficiary) {
-      alert(`Welcome, ${beneficiary.firstName} ${beneficiary.lastName}!`);
+      setBeneficiary(beneficiary);
+      navigation.navigate("BeneficiaryDetails", {
+        uniqID: data,
+      });
     } else {
       alert(`Invalid QR code`);
     }
+  };
+
+  // Update this function to use the pop method
+  const handleGoBack = () => {
+    navigation.pop();
+    setScanned(false);
+    setScannedData(null);
   };
 
   if (hasPermission === null) {
@@ -41,36 +59,33 @@ export default function Scanner() {
       />
       {scanned && (
         <View style={styles.scanResultContainer}>
-          {beneficiaries.map((beneficiary) => {
-            if (beneficiary.uniqID === scannedData) {
-              return (
-                <View key={beneficiary.uniqID}>
-                  <Text style={styles.scanResultText}>
-                    Welcome, {beneficiary.firstName} {beneficiary.lastName}!
-                  </Text>
-                </View>
-              );
-            }
-          })}
-          <Button
-            title={"Tap to Scan Again"}
-            onPress={() => setScanned(false)}
-          />
+          <Button title={"Tap to Scan Again"} onPress={handleGoBack} />
         </View>
       )}
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    alignItems: "right",
+    alignItems: "center",
     justifyContent: "center",
   },
-  logoContainer: {
-    alignItems: "center", // Center the logo horizontally
-    marginTop: 10, // Add some margin to separate the logo from the header
+  scanResultContainer: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    padding: 15,
+    alignItems: "center",
+  },
+  balanceText: {
+    fontSize: 24,
+    fontWeight: "bold",
   },
 });
+
+export default Scanner;
