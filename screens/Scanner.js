@@ -3,17 +3,10 @@ import { Text, View, StyleSheet, Button } from "react-native";
 import { BarCodeScanner } from "expo-barcode-scanner";
 import { useNavigation } from "@react-navigation/native";
 import beneficiaries from "../DB/Bdata.json";
-import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack";
-import BeneficiaryDetails from "./BenDetails";
 
-const Stack = createStackNavigator();
-
-const Scanner = React.memo(() => {
+const Scanner = React.memo(({ setSelectedBeneficiary }) => {
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
-  const [scannedData, setScannedData] = useState(null);
-  const [beneficiary, setBeneficiary] = useState(null);
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -24,11 +17,10 @@ const Scanner = React.memo(() => {
   }, []);
 
   const handleBarCodeScanned = ({ data }) => {
-    setScannedData(data);
     setScanned(true);
     const beneficiary = beneficiaries.find((b) => b.uniqID === data);
     if (beneficiary) {
-      setBeneficiary(beneficiary);
+      setSelectedBeneficiary(beneficiary);
       navigation.navigate("BeneficiaryDetails", {
         uniqID: data,
       });
@@ -40,8 +32,6 @@ const Scanner = React.memo(() => {
   // Update this function to use the pop method
   const handleGoBack = () => {
     navigation.pop();
-    setScanned(false);
-    setScannedData(null);
   };
 
   if (hasPermission === null) {
@@ -82,9 +72,9 @@ const styles = StyleSheet.create({
     padding: 15,
     alignItems: "center",
   },
-  balanceText: {
-    fontSize: 24,
-    fontWeight: "bold",
+  logoContainer: {
+    alignItems: "center", // Center the logo horizontally
+    marginTop: 10, // Add some margin to separate the logo from the header
   },
 });
 

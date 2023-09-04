@@ -3,7 +3,13 @@
     "firstName": "John",
     "lastName": "Doe",
     "uniqID": "1234567890",
-    "balance": 10000
+    "balance": 10000,
+    "purchaseHistory":[{
+      "itemName": "Apple",
+      "itemPrice": 1.00,
+      "itemQuantity": 10,
+      "dateOfPurchase":"2018-01-01"
+    }]
   },
   {
     "firstName": "Jane",
