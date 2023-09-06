@@ -1,26 +1,17 @@
 import React from "react";
-import {
-  Text,
-  View,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-} from "react-native";
+import { Text, View, StyleSheet, ScrollView } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import beneficiaries from "../DB/Bdata.json";
 import { useNavigation } from "@react-navigation/native";
 import Card from "../components/Card";
 import CartButton from "../components/CartButton";
 
 export default function BeneficiaryDetails({
-  route,
+  selectedBeneficiary,
   cartItems,
   handleAddToCart,
 }) {
   const navigation = useNavigation();
-  const { uniqID } = route.params;
-  const selectedBeneficiary = beneficiaries.find((b) => b.uniqID === uniqID);
-
+  const { balance } = selectedBeneficiary;
   // Create a random array of items
   const items = [
     {
@@ -68,7 +59,7 @@ export default function BeneficiaryDetails({
     <View style={styles.container}>
       <LinearGradient colors={["#007DBC", "#6FB9E8"]} style={styles.card}>
         <Text style={styles.balanceText}>
-          Balance: Rs. {selectedBeneficiary.balance.toFixed(2)}
+          Balance: Rs. {balance.toFixed(2)}
         </Text>
       </LinearGradient>
       <ScrollView style={styles.scrollView}>
@@ -96,7 +87,7 @@ export default function BeneficiaryDetails({
         })}
       </ScrollView>
       <CartButton
-        balance={selectedBeneficiary.balance.toFixed(2)}
+        balance={balance.toFixed(2)}
         onPress={handleCartPress}
         cartItems={cartItems}
       />

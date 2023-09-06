@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Text, View, StyleSheet, Button } from "react-native";
 import { BarCodeScanner } from "expo-barcode-scanner";
 import { useNavigation } from "@react-navigation/native";
-import beneficiaries from "../DB/Bdata.json";
+import api from "../api/api";
 
 const Scanner = React.memo(({ setSelectedBeneficiary }) => {
   const [hasPermission, setHasPermission] = useState(null);
@@ -16,16 +16,20 @@ const Scanner = React.memo(({ setSelectedBeneficiary }) => {
     })();
   }, []);
 
-  const handleBarCodeScanned = ({ data }) => {
+  const handleBarCodeScanned = async ({ data }) => {
     setScanned(true);
-    const beneficiary = beneficiaries.find((b) => b.uniqID === data);
-    if (beneficiary) {
-      setSelectedBeneficiary(beneficiary);
-      navigation.navigate("BeneficiaryDetails", {
-        uniqID: data,
-      });
-    } else {
-      alert(`Invalid QR code`);
+    try {
+      const response = await api
+        .get(`/beneficiaries/${data}`)
+        .then((res) => {
+          setSelectedBeneficiary(res.data);
+        })
+        .then(() => {
+          navigation.navigate("BeneficiaryDetails");
+        });
+    } catch (error) {
+      console.log(error);
+      alert(`Error: ${error.message}`);
     }
   };
 

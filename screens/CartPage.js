@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import api from "../api/api";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import CheckoutItem from "../components/CheckoutItem";
 
@@ -7,7 +8,7 @@ export default function CartPage({
   cartItems,
   handleRemoveFromCart,
 }) {
-  const { balance, uniqID } = selectedBeneficiary;
+  const { balance, _id } = selectedBeneficiary;
   const totalPrice = cartItems.reduce(
     (total, item) => total + item.price * item.quantity,
     0
@@ -17,14 +18,12 @@ export default function CartPage({
   const [isSuccess, setIsSuccess] = useState(false);
 
   const handleCheckout = () => {
+    console.log(cartItems, _id);
     setIsLoading(true);
     // Send request to API with cart items and uniqID
-    fetch("https://www.mongo.com", {
-      method: "POST",
-      body: JSON.stringify({ cartItems, uniqID }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
+    api
+      .post("/beneficiaries/updateCart", { cartItems, _id })
+      .then((response) => {
         setIsLoading(false);
         setIsSuccess(true);
         // Reset cart items
