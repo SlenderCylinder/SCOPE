@@ -1,14 +1,25 @@
 import React, { useState } from "react";
 import api from "../api/api";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+  Modal,
+} from "react-native";
 import CheckoutItem from "../components/CheckoutItem";
+import { useNavigation } from "@react-navigation/native";
+import { AntDesign } from "@expo/vector-icons";
 
 export default function CartPage({
   selectedBeneficiary,
   cartItems,
   handleRemoveFromCart,
+  setCartItems,
+  setSelectedBeneficiary,
 }) {
-  const { balance, _id } = selectedBeneficiary;
+  const { amount, id } = selectedBeneficiary;
   const totalPrice = cartItems.reduce(
     (total, item) => total + item.price * item.quantity,
     0
@@ -16,13 +27,14 @@ export default function CartPage({
 
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const navigation = useNavigation();
 
   const handleCheckout = () => {
-    console.log(cartItems, _id);
+    console.log(cartItems, id);
     setIsLoading(true);
     // Send request to API with cart items and uniqID
     api
-      .post("/beneficiaries/updateCart", { cartItems, _id })
+      .post("/beneficiaries/updateCart", { cartItems, id })
       .then((response) => {
         setIsLoading(false);
         setIsSuccess(true);
@@ -35,21 +47,12 @@ export default function CartPage({
       });
   };
 
-  if (isLoading) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.loadingText}>Loading...</Text>
-      </View>
-    );
-  }
-
-  if (isSuccess) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.successText}>Order placed successfully!</Text>
-      </View>
-    );
-  }
+  const handleCloseSuccess = () => {
+    navigation.navigate("Home");
+    setIsSuccess(false);
+    setSelectedBeneficiary(null);
+    setCartItems([]);
+  };
 
   return (
     <View style={styles.container}>
@@ -64,7 +67,7 @@ export default function CartPage({
         <Text style={styles.totalText}>Total:</Text>
         <Text style={styles.totalPrice}>Rs {totalPrice.toFixed(2)}</Text>
       </View>
-      {totalPrice > balance ? (
+      {totalPrice > amount ? (
         <View style={styles.messageContainer}>
           <Text style={styles.messageText}>Exceeds balance</Text>
         </View>
@@ -72,15 +75,29 @@ export default function CartPage({
       <TouchableOpacity
         style={[
           styles.checkoutButton,
-          totalPrice === 0 || totalPrice > balance
+          totalPrice === 0 || totalPrice > amount
             ? styles.disabledButton
             : null,
+          isLoading ? styles.loadingButton : null,
         ]}
         onPress={handleCheckout}
-        disabled={totalPrice === 0 || totalPrice > balance}
+        disabled={totalPrice === 0 || totalPrice > amount || isLoading}
       >
-        <Text style={styles.checkoutText}>Checkout</Text>
+        {isLoading ? (
+          <ActivityIndicator size="small" color="#ffffff" />
+        ) : (
+          <Text style={styles.checkoutText}>Checkout</Text>
+        )}
       </TouchableOpacity>
+      <Modal visible={isSuccess} animationType="slide" transparent={true}>
+        <View style={styles.successContainer}>
+          <AntDesign name="checkcircle" size={64} color="green" />
+          <Text style={styles.successText}>Order placed successfully!</Text>
+          <TouchableOpacity onPress={handleCloseSuccess}>
+            <Text style={styles.closeText}>Logout</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -116,16 +133,8 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
   },
-  loadingText: {
-    fontSize: 20,
-    fontWeight: "bold",
-    textAlign: "center",
-  },
-  successText: {
-    fontSize: 20,
-    fontWeight: "bold",
-    textAlign: "center",
-    color: "green",
+  loadingButton: {
+    backgroundColor: "#cccccc",
   },
   disabledButton: {
     backgroundColor: "#cccccc",
@@ -141,5 +150,26 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     textAlign: "center",
+  },
+  successContainer: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  successText: {
+    color: "#ffffff",
+    fontSize: 24,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginTop: 20,
+  },
+  closeText: {
+    color: "#ffffff",
+    fontSize: 20,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginTop: 20,
+    textDecorationLine: "underline",
   },
 });

@@ -1,17 +1,20 @@
-import React from "react";
-import { Text, View, StyleSheet, ScrollView } from "react-native";
+import React, { useEffect } from "react";
+import { Text, View, StyleSheet, ScrollView, Alert } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import Logout from "../components/Logout";
 import Card from "../components/Card";
 import CartButton from "../components/CartButton";
 
 export default function BeneficiaryDetails({
   selectedBeneficiary,
   cartItems,
+  setSelectedBeneficiary,
+  setCartItems,
   handleAddToCart,
 }) {
   const navigation = useNavigation();
-  const { balance } = selectedBeneficiary;
+  const amount = selectedBeneficiary ? selectedBeneficiary.amount : 0;
   // Create a random array of items
   const items = [
     {
@@ -55,12 +58,43 @@ export default function BeneficiaryDetails({
     navigation.navigate("Cart");
   };
 
+  // Show confirmation dialog when the user presses the back button
+  useFocusEffect(
+    React.useCallback(() => {
+      const unsubscribe = navigation.addListener("beforeRemove", (e) => {
+        e.preventDefault();
+
+        Alert.alert(
+          "Confirm",
+          "Are you sure you want to go back?",
+          [
+            {
+              text: "Cancel",
+              style: "cancel",
+              onPress: () => {},
+            },
+            {
+              text: "Logout",
+              style: "destructive",
+              onPress: () => {
+                setSelectedBeneficiary(null);
+                setCartItems([]);
+                navigation.dispatch(e.data.action);
+              },
+            },
+          ],
+          { cancelable: false }
+        );
+      });
+
+      return unsubscribe;
+    }, [navigation, setSelectedBeneficiary, setCartItems])
+  );
+
   return (
     <View style={styles.container}>
       <LinearGradient colors={["#007DBC", "#6FB9E8"]} style={styles.card}>
-        <Text style={styles.balanceText}>
-          Balance: Rs. {balance.toFixed(2)}
-        </Text>
+        <Text style={styles.balanceText}>Balance: Rs. {amount.toFixed(2)}</Text>
       </LinearGradient>
       <ScrollView style={styles.scrollView}>
         {items.map((item, index) => {
@@ -87,9 +121,13 @@ export default function BeneficiaryDetails({
         })}
       </ScrollView>
       <CartButton
-        balance={balance.toFixed(2)}
+        balance={amount.toFixed(2)}
         onPress={handleCartPress}
         cartItems={cartItems}
+      />
+      <Logout
+        setSelectedBeneficiary={setSelectedBeneficiary}
+        setCartItems={setCartItems}
       />
     </View>
   );

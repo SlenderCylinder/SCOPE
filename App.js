@@ -1,47 +1,39 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Scanner from "./screens/Scanner";
 import { createStackNavigator } from "@react-navigation/stack";
+
 import Home from "./screens/Home";
+import Pin from "./screens/Pin";
 import BeneficiaryDetails from "./screens/BenDetails";
 import CartPage from "./screens/CartPage";
-import { NavigationContainer, useNavigation } from "@react-navigation/native";
-import { Button, View, Text } from "react-native";
+import { NavigationContainer } from "@react-navigation/native";
+import { Button, View } from "react-native";
 
 const Stack = createStackNavigator();
 
 function App() {
   const [cartItems, setCartItems] = useState([]);
   const [selectedBeneficiary, setSelectedBeneficiary] = useState(null);
-  const navigation = useNavigation();
 
   const handleAddToCart = (name, quantity, price) => {
     const newItem = { name, quantity, price };
     setCartItems([...cartItems, newItem]);
   };
+
   const handleRemoveFromCart = (item) => {
     const newCartItems = cartItems.filter((cartItem) => cartItem !== item);
     setCartItems(newCartItems);
   };
-  const handleLogout = () => {
-    setCartItems([]);
-    setSelectedBeneficiary(null);
-    navigation.navigate("Home");
-  };
 
   return (
-    <>
-      <Stack.Navigator
-        screenOptions={{
-          headerRight: () => (
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              {selectedBeneficiary && (
-                <Button title="Logout" onPress={handleLogout} />
-              )}
-            </View>
-          ),
-        }}
-      >
+    <NavigationContainer>
+      <Stack.Navigator>
         <Stack.Screen name="Home" component={Home} />
+        <Stack.Screen name="Pin">
+          {(props) => (
+            <Pin {...props} setSelectedBeneficiary={setSelectedBeneficiary} />
+          )}
+        </Stack.Screen>
         <Stack.Screen name="Scanner">
           {(props) => (
             <Scanner
@@ -55,6 +47,8 @@ function App() {
             <CartPage
               {...props}
               cartItems={cartItems}
+              setSelectedBeneficiary={setSelectedBeneficiary}
+              setCartItems={setCartItems}
               selectedBeneficiary={selectedBeneficiary}
               handleRemoveFromCart={handleRemoveFromCart}
             />
@@ -69,19 +63,16 @@ function App() {
               {...props}
               cartItems={cartItems}
               selectedBeneficiary={selectedBeneficiary}
+              setSelectedBeneficiary={setSelectedBeneficiary}
+              setCartItems={setCartItems}
               handleAddToCart={handleAddToCart}
               handleRemoveFromCart={handleRemoveFromCart}
             />
           )}
         </Stack.Screen>
       </Stack.Navigator>
-    </>
-  );
-}
-export default () => {
-  return (
-    <NavigationContainer>
-      <App />
     </NavigationContainer>
   );
-};
+}
+
+export default App;
