@@ -1,48 +1,99 @@
-import { StatusBar } from "expo-status-bar";
-import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { Button, Icon } from "react-native-elements"; // Import the Icon component
+import React, { useState, useEffect } from "react";
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  Animated,
+  ImageBackground,
+  StatusBar,
+} from "react-native";
+import { Button, Icon } from "react-native-elements";
 import Logo from "../assets/logo";
-
 import { useNavigation } from "@react-navigation/native";
+import { LinearGradient } from "expo-linear-gradient";
+import { BlurView } from "expo-blur";
 
 export default function Home() {
   const navigation = useNavigation();
+  const [animation] = useState(new Animated.Value(0));
+
+  useEffect(() => {
+    Animated.timing(animation, {
+      toValue: 1,
+      duration: 1000,
+      useNativeDriver: true,
+    }).start();
+  }, []);
+
+  const logoTranslateY = animation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [-200, 0],
+  });
+
+  const buttonsTranslateY = animation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [-100, 0],
+  });
 
   return (
     <View style={styles.container}>
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => navigation.navigate("Scanner")}
-        >
-          <Icon
-            style={{ marginRight: 10 }}
-            color={"white"}
-            name="qrcode"
-            type="font-awesome"
+      <StatusBar barStyle="light-content" />
+      <ImageBackground
+        source={{
+          uri: "https://images.unsplash.com/photo-1521747116042-5a810fda9664",
+        }}
+        style={styles.backgroundImage}
+      >
+        <BlurView intensity={100} style={StyleSheet.absoluteFill}>
+          <LinearGradient
+            colors={["#FFC371", "#FF5F6D"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.gradient}
           />
-          <Text style={{ color: "white", fontSize: 20 }}>Scan QR</Text>
-        </TouchableOpacity>
-      </View>
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={[styles.button, { marginTop: 20 }]} // Add margin to the second button
-          title="Pin"
-          onPress={() => navigation.navigate("Pin")}
-        >
-          <Icon
-            style={{ marginRight: 10 }}
-            color={"white"}
-            name="lock"
-            type="font-awesome"
-          />
-          <Text style={{ color: "white", fontSize: 20 }}>Enter PIN</Text>
-        </TouchableOpacity>
-      </View>
-      <View style={styles.logoContainer}>
-        <Logo />
-      </View>
+          <Animated.View
+            style={[
+              styles.logoContainer,
+              { transform: [{ translateY: logoTranslateY }] },
+            ]}
+          >
+            <Logo />
+          </Animated.View>
+          <Animated.View
+            style={[
+              styles.buttonContainer,
+              { transform: [{ translateY: buttonsTranslateY }] },
+            ]}
+          >
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => navigation.navigate("Scanner")}
+            >
+              <Icon
+                style={{ marginRight: 10 }}
+                color={"white"}
+                name="qrcode"
+                type="font-awesome"
+              />
+              <Text style={{ color: "white", fontSize: 20 }}>Scan QR</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.button, { marginTop: 20 }]}
+              title="Pin"
+              onPress={() => navigation.navigate("Pin")}
+            >
+              <Icon
+                style={{ marginRight: 10 }}
+                color={"white"}
+                name="lock"
+                type="font-awesome"
+              />
+              <Text style={{ color: "white", fontSize: 20 }}>Enter PIN</Text>
+            </TouchableOpacity>
+          </Animated.View>
+        </BlurView>
+      </ImageBackground>
     </View>
   );
 }
@@ -50,14 +101,19 @@ export default function Home() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "space-evenly",
+  },
+  backgroundImage: {
+    flex: 1,
+    resizeMode: "cover",
+  },
+  gradient: {
+    ...StyleSheet.absoluteFillObject,
   },
   logoContainer: {
     width: 200,
-    alignItems: "center", // Center the logo horizontally
-    marginTop: 10, // Add some margin to separate the logo from the header
+    alignItems: "center",
+    alignSelf:"center",
+    marginTop: 10,
   },
   buttonContainer: {
     alignItems: "center",

@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Scanner from "./screens/Scanner";
 import { createStackNavigator } from "@react-navigation/stack";
-
 import Home from "./screens/Home";
 import Pin from "./screens/Pin";
 import BeneficiaryDetails from "./screens/BenDetails";
 import CartPage from "./screens/CartPage";
 import { NavigationContainer } from "@react-navigation/native";
-import { Button, View } from "react-native";
+import Loading from "./screens/Loading";
+import { ActivityIndicator } from "react-native";
 
 const Stack = createStackNavigator();
 
@@ -28,7 +28,16 @@ function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        <Stack.Screen name="Home" component={Home} />
+        <Stack.Screen
+          name="Loading"
+          component={Loading}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Home"
+          component={Home}
+          options={{ headerShown: false }}
+        />
         <Stack.Screen name="Pin">
           {(props) => (
             <Pin {...props} setSelectedBeneficiary={setSelectedBeneficiary} />

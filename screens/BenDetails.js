@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Text, View, StyleSheet, ScrollView, Alert } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
@@ -125,10 +125,10 @@ export default function BeneficiaryDetails({
         onPress={handleCartPress}
         cartItems={cartItems}
       />
-      <Logout
+      {/* <Logout
         setSelectedBeneficiary={setSelectedBeneficiary}
         setCartItems={setCartItems}
-      />
+      /> */}
     </View>
   );
 }

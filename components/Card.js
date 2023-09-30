@@ -8,7 +8,6 @@ import {
   Modal,
   TextInput,
   TouchableWithoutFeedback,
-  Keyboard,
   ImageBackground,
 } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
