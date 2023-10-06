@@ -7,13 +7,14 @@ import BeneficiaryDetails from "./screens/BenDetails";
 import CartPage from "./screens/CartPage";
 import { NavigationContainer } from "@react-navigation/native";
 import Loading from "./screens/Loading";
-import { ActivityIndicator } from "react-native";
+import LanguageSelectionScreen from "./screens/Lang"; // Import the new component
 
 const Stack = createStackNavigator();
 
 function App() {
   const [cartItems, setCartItems] = useState([]);
   const [selectedBeneficiary, setSelectedBeneficiary] = useState(null);
+  const [isOffline, setIsOffline] = useState(false);
 
   const handleAddToCart = (name, quantity, price) => {
     const newItem = { name, quantity, price };
@@ -28,11 +29,9 @@ function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        <Stack.Screen
-          name="Loading"
-          component={Loading}
-          options={{ headerShown: false }}
-        />
+        <Stack.Screen name="Loading" options={{ headerShown: false }}>
+          {(props) => <Loading {...props} setIsOffline={setIsOffline} />}
+        </Stack.Screen>
         <Stack.Screen
           name="Home"
           component={Home}
@@ -40,13 +39,18 @@ function App() {
         />
         <Stack.Screen name="Pin">
           {(props) => (
-            <Pin {...props} setSelectedBeneficiary={setSelectedBeneficiary} />
+            <Pin
+              {...props}
+              setIsOffline={setIsOffline}
+              setSelectedBeneficiary={setSelectedBeneficiary}
+            />
           )}
         </Stack.Screen>
         <Stack.Screen name="Scanner">
           {(props) => (
             <Scanner
               {...props}
+              setIsOffline={setIsOffline}
               setSelectedBeneficiary={setSelectedBeneficiary}
             />
           )}
@@ -56,6 +60,7 @@ function App() {
             <CartPage
               {...props}
               cartItems={cartItems}
+              isOffline={isOffline}
               setSelectedBeneficiary={setSelectedBeneficiary}
               setCartItems={setCartItems}
               selectedBeneficiary={selectedBeneficiary}
@@ -79,6 +84,11 @@ function App() {
             />
           )}
         </Stack.Screen>
+        <Stack.Screen
+          name="LanguageSelection" // Add a new screen for the LanguageSelectionScreen component
+          component={LanguageSelectionScreen}
+          options={{ headerShown: false }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

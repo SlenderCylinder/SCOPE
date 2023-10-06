@@ -1,9 +1,9 @@
 import axios from "axios";
 
 const api = axios.create({
-  // baseURL:
-  // "https://41d1-2402-4000-b1c0-c18a-7cea-7d41-a716-9198.ngrok-free.app/scope-backend-93b9d/us-central1/app",
-  baseURL: "https://us-central1-scope-backend-93b9d.cloudfunctions.net/app",
+  baseURL:
+    "https://5f92-2402-d000-a500-606a-499d-7d46-f0a-c474.ngrok-free.app/scope-backend-93b9d/us-central1/app",
+  // baseURL: "https://us-central1-scope-backend-93b9d.cloudfunctions.net/app",
   headers: {
     "ngrok-skip-browser-warning": "69420",
   },

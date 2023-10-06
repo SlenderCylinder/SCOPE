@@ -1,13 +1,25 @@
 import React, { useState, useEffect } from "react";
-import { Text, View, StyleSheet, Button } from "react-native";
+import {
+  Text,
+  View,
+  StyleSheet,
+  Button,
+  ActivityIndicator,
+  Animated,
+  Alert,
+  Easing,
+} from "react-native";
 import { BarCodeScanner } from "expo-barcode-scanner";
 import { useNavigation } from "@react-navigation/native";
+import beneficiariesData from "../api/beneficiaries.json";
 import api from "../api/api";
 
-const Scanner = React.memo(({ setSelectedBeneficiary }) => {
+const Scanner = React.memo(({ isOffline, setSelectedBeneficiary }) => {
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const navigation = useNavigation();
+  const [animation] = useState(new Animated.Value(0));
 
   useEffect(() => {
     (async () => {
@@ -17,19 +29,31 @@ const Scanner = React.memo(({ setSelectedBeneficiary }) => {
   }, []);
 
   const handleBarCodeScanned = async ({ data }) => {
-    setScanned(true);
-    try {
-      const response = await api
-        .get(`/beneficiaries/${data}`)
-        .then((res) => {
-          setSelectedBeneficiary(res.data);
-        })
-        .then(() => {
+    if (isOffline) {
+      try {
+        const beneficiary = beneficiariesData.find((b) => b.id === pin);
+        if (beneficiary) {
+          setSelectedBeneficiary(beneficiary);
           navigation.navigate("BeneficiaryDetails");
-        });
-    } catch (error) {
-      console.log(error);
-      alert(`Error: ${error.message}`);
+        } else {
+          Alert.alert("Beneficiary not found");
+        }
+      } catch (error) {
+        console.error(error);
+        Alert.alert("Error finding beneficiary");
+      } finally {
+        setIsLoading(false);
+      }
+    } else {
+      try {
+        const response = await api.get(`/beneficiary/${data}`);
+        setSelectedBeneficiary(response.data);
+        navigation.navigate("BeneficiaryDetails");
+      } catch (error) {
+        Alert.alert("Beneficiary not found");
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -37,6 +61,17 @@ const Scanner = React.memo(({ setSelectedBeneficiary }) => {
   const handleGoBack = () => {
     navigation.pop();
   };
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.timing(animation, {
+        toValue: 1,
+        duration: 1500,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      })
+    ).start();
+  }, [animation]);
 
   if (hasPermission === null) {
     return <Text>Requesting for camera permission</Text>;
@@ -47,15 +82,46 @@ const Scanner = React.memo(({ setSelectedBeneficiary }) => {
 
   return (
     <View style={styles.container}>
-      <BarCodeScanner
-        onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-        style={StyleSheet.absoluteFillObject}
-      />
-      {scanned && (
+      <View style={styles.cameraContainer}>
+        <BarCodeScanner
+          onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
+          style={StyleSheet.absoluteFillObject}
+        />
+        <View style={styles.cameraFrame}>
+          <View style={styles.cameraFrameRow} />
+          <View style={styles.cameraFrameRow}>
+            <View style={styles.cameraFrameCol} />
+            <View style={styles.cameraFrameCol}>
+              <Animated.View
+                style={[
+                  styles.scannerLine,
+                  {
+                    transform: [
+                      {
+                        translateY: animation.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [0, 150],
+                        }),
+                      },
+                    ],
+                  },
+                ]}
+              />
+            </View>
+            <View style={styles.cameraFrameCol} />
+          </View>
+          <View style={styles.cameraFrameRow} />
+        </View>
+      </View>
+      {isLoading ? (
+        <View style={styles.loaderContainer}>
+          <ActivityIndicator size="large" color="#0A6EB4" />
+        </View>
+      ) : scanned ? (
         <View style={styles.scanResultContainer}>
           <Button title={"Tap to Scan Again"} onPress={handleGoBack} />
         </View>
-      )}
+      ) : null}
     </View>
   );
 });
@@ -67,6 +133,41 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  cameraContainer: {
+    position: "relative",
+    width: "80%",
+    height: "50%",
+  },
+  cameraFrame: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderWidth: 2,
+    borderColor: "#0A6EB4",
+    borderRadius: 10,
+    overflow: "hidden",
+  },
+  cameraFrameRow: {
+    flex: 1,
+    flexDirection: "row",
+  },
+  cameraFrameCol: {
+    flex: 1,
+    borderLeftWidth: 2,
+    borderRightWidth: 2,
+    borderColor: "#0A6EB4",
+    position: "relative",
+  },
+  scannerLine: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 2,
+    backgroundColor: "#0A6EB4",
+  },
   scanResultContainer: {
     position: "absolute",
     bottom: 0,
@@ -76,9 +177,14 @@ const styles = StyleSheet.create({
     padding: 15,
     alignItems: "center",
   },
-  logoContainer: {
-    alignItems: "center", // Center the logo horizontally
-    marginTop: 10, // Add some margin to separate the logo from the header
+  loaderContainer: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: "rgba(255, 255, 255, 0.5)",
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
 

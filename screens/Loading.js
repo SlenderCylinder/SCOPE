@@ -1,8 +1,10 @@
 import React, { useEffect, useState, useRef } from "react";
 import { View, StyleSheet, Image, Animated, Text } from "react-native";
 import { ActivityIndicator, Button } from "react-native-paper";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import api from "../api/api";
 
-export default function Loading({ navigation }) {
+export default function Loading({ navigation, setIsOffline }) {
   const logoPosition = useRef(new Animated.Value(0)).current;
   const textPosition = new Animated.Value(500);
   const innovationPosition = useRef(new Animated.Value(0)).current;
@@ -63,6 +65,7 @@ export default function Loading({ navigation }) {
               break;
             case "Hope":
               checkInternetConnectivity();
+              // setInnovationText("Resilience");
               break;
             default:
               break;
@@ -90,13 +93,30 @@ export default function Loading({ navigation }) {
   const checkInternetConnectivity = async () => {
     try {
       const response = await fetch("https://www.google.com");
+      const selectedLanguage = await AsyncStorage.getItem("selectedLanguage");
       if (response.ok) {
-        navigation.navigate("Home");
+        const cartData = await AsyncStorage.getItem("cartData");
+        if (cartData != null) {
+          const cartDataArray = JSON.parse(cartData);
+          const payload = { cartData: cartDataArray };
+          api.post("/beneficiaries/cacheUpdate", payload).then(() => {
+            // Clear the cache after uploading data
+            AsyncStorage.removeItem("cartData").then(() => {
+              navigation.navigate("Home");
+            });
+          });
+        } else if (selectedLanguage === null) {
+          navigation.navigate("LanguageSelection");
+        } else {
+          navigation.navigate("Home");
+        }
       } else {
-        setShowRetryButton(true);
+        setIsOffline(true);
+        navigation.navigate("Home");
       }
     } catch (error) {
-      setShowRetryButton(true);
+      setIsOffline(true);
+      navigation.navigate("Home");
     }
   };
 

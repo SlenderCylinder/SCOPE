@@ -1,3 +1,5 @@
+// This component is the PIN login screen. It is displayed when the user first launches the app.
+
 import React, { useState } from "react";
 import {
   StyleSheet,
@@ -6,31 +8,52 @@ import {
   TextInput,
   TouchableOpacity,
   ActivityIndicator,
+  Alert,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
 import api from "../api/api";
+import { useNavigation } from "@react-navigation/native";
+import beneficiariesData from "../api/beneficiaries.json";
 
-export default function Pin({ setSelectedBeneficiary }) {
+export default function Pin({ isOffline, setSelectedBeneficiary }) {
   const navigation = useNavigation();
   const [pin, setPin] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  // When the user clicks the login button
   const handleLogin = async () => {
     setIsLoading(true);
-    const res = await api
-      .get(`/beneficiary/${pin}`)
-      .then((res) => {
-        setSelectedBeneficiary(res.data);
-        navigation.navigate("BeneficiaryDetails"); // Navigate to BeneficiaryDetails screen
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-    setIsLoading(false);
-  };
 
+    if (isOffline) {
+      try {
+        const beneficiary = beneficiariesData.find((b) => b.id === pin);
+        if (beneficiary) {
+          setSelectedBeneficiary(beneficiary);
+          navigation.navigate("BeneficiaryDetails");
+        } else {
+          Alert.alert("Beneficiary not found");
+        }
+      } catch (error) {
+        console.error(error);
+        Alert.alert("Error finding beneficiary");
+      } finally {
+        setIsLoading(false);
+      }
+    } else {
+      try {
+        const beneficiary = beneficiariesData.find((b) => b.id === pin);
+        const response = await api.get(`/beneficiary/${pin}`);
+        setSelectedBeneficiary(response.data);
+        navigation.navigate("BeneficiaryDetails");
+      } catch (error) {
+        Alert.alert("Beneficiary not found");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+  // This function checks whether the login button should be disabled
   const isLoginDisabled = () => {
-    return pin.length !== 6;
+    return pin.length !== 8;
   };
 
   return (
@@ -39,7 +62,7 @@ export default function Pin({ setSelectedBeneficiary }) {
       <TextInput
         style={styles.input}
         keyboardType="numeric"
-        maxLength={6}
+        maxLength={8}
         value={pin}
         onChangeText={(text) => setPin(text)}
         secureTextEntry={true}

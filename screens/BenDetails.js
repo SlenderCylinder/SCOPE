@@ -2,7 +2,7 @@ import React from "react";
 import { Text, View, StyleSheet, ScrollView, Alert } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
-import Logout from "../components/Logout";
+import Items from "../api/comodities";
 import Card from "../components/Card";
 import CartButton from "../components/CartButton";
 
@@ -16,43 +16,6 @@ export default function BeneficiaryDetails({
   const navigation = useNavigation();
   const amount = selectedBeneficiary ? selectedBeneficiary.amount : 0;
   // Create a random array of items
-  const items = [
-    {
-      id: 1,
-      name: "Potato 1KG",
-      price: 10000,
-      image:
-        "https://ik.imagekit.io/qsfifxkbx/item_BNHUD9Vok.jpg?updatedAt=1693804425102",
-    },
-    {
-      id: 2,
-      name: "Potato 2",
-      price: 20,
-      image:
-        "https://ik.imagekit.io/qsfifxkbx/item_BNHUD9Vok.jpg?updatedAt=1693804425102",
-    },
-    {
-      id: 3,
-      name: "Potato 3",
-      price: 30,
-      image:
-        "https://ik.imagekit.io/qsfifxkbx/item_BNHUD9Vok.jpg?updatedAt=1693804425102",
-    },
-    {
-      id: 4,
-      name: "Potato 4",
-      price: 40,
-      image:
-        "https://ik.imagekit.io/qsfifxkbx/item_BNHUD9Vok.jpg?updatedAt=1693804425102",
-    },
-    {
-      id: 5,
-      name: "Potato 5",
-      price: 50,
-      image:
-        "https://ik.imagekit.io/qsfifxkbx/item_BNHUD9Vok.jpg?updatedAt=1693804425102",
-    },
-  ];
 
   const handleCartPress = () => {
     navigation.navigate("Cart");
@@ -97,7 +60,7 @@ export default function BeneficiaryDetails({
         <Text style={styles.balanceText}>Balance: Rs. {amount.toFixed(2)}</Text>
       </LinearGradient>
       <ScrollView style={styles.scrollView}>
-        {items.map((item, index) => {
+        {Items.map((item, index) => {
           if (index % 2 === 0) {
             return (
               <View key={index} style={styles.cardRow}>
@@ -107,11 +70,11 @@ export default function BeneficiaryDetails({
                   image={item.image}
                   onAddToCart={handleAddToCart}
                 />
-                {items[index + 1] && (
+                {Items[index + 1] && (
                   <Card
-                    name={items[index + 1].name}
-                    price={items[index + 1].price}
-                    image={items[index + 1].image}
+                    name={Items[index + 1].name}
+                    price={Items[index + 1].price}
+                    image={Items[index + 1].image}
                     onAddToCart={handleAddToCart}
                   />
                 )}

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import api from "../api/api";
 import {
   View,
@@ -11,10 +11,12 @@ import {
 import CheckoutItem from "../components/CheckoutItem";
 import { useNavigation } from "@react-navigation/native";
 import { AntDesign } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function CartPage({
   selectedBeneficiary,
   cartItems,
+  isOffline,
   handleRemoveFromCart,
   setCartItems,
   setSelectedBeneficiary,
@@ -29,30 +31,73 @@ export default function CartPage({
   const [isSuccess, setIsSuccess] = useState(false);
   const navigation = useNavigation();
 
-  const handleCheckout = () => {
-    console.log(cartItems, id);
+  const handleCheckout = async () => {
     setIsLoading(true);
-    // Send request to API with cart items and uniqID
-    api
-      .post("/beneficiaries/updateCart", { cartItems, id })
-      .then((response) => {
-        setIsLoading(false);
-        setIsSuccess(true);
-        // Reset cart items
-        handleRemoveFromCart(null);
-      })
-      .catch((error) => {
-        setIsLoading(false);
+    if (!isOffline) {
+      // Save cartItems and index to cache
+      const cartData = { cartItems, index: id };
+      try {
+        const cachedCartData = await AsyncStorage.getItem("cartData");
+        if (cachedCartData != null) {
+          // If there is already cached data, parse it and add the new cartData object to the array
+          const cachedCartDataArray = JSON.parse(cachedCartData);
+          cachedCartDataArray.push(cartData);
+          await AsyncStorage.setItem(
+            "cartData",
+            JSON.stringify(cachedCartDataArray)
+          );
+        } else {
+          // If there is no cached data, create a new array with the cartData object and save it to the cache
+          const newCartDataArray = [cartData];
+          await AsyncStorage.setItem(
+            "cartData",
+            JSON.stringify(newCartDataArray)
+          );
+        }
+      } catch (error) {
         console.error(error);
-      });
+      }
+      setIsLoading(false);
+      setIsSuccess(true);
+      handleRemoveFromCart(null);
+    } else {
+      api
+        .post("/beneficiaries/updateCart", { cartItems, id })
+        .then((response) => {
+          setIsLoading(false);
+          setIsSuccess(true);
+          handleRemoveFromCart(null);
+        })
+        .catch((error) => {
+          setIsLoading(false);
+          console.error(error);
+        });
+    }
   };
-
   const handleCloseSuccess = () => {
     navigation.navigate("Home");
     setIsSuccess(false);
     setSelectedBeneficiary(null);
     setCartItems([]);
   };
+
+  useEffect(() => {
+    // Load cartItems and index from cache on mount
+    const loadCartData = async () => {
+      try {
+        const cartData = await AsyncStorage.getItem("cartData");
+        if (cartData != null) {
+          const { cartItems, index } = JSON.parse(cartData);
+          if (index === id) {
+            setCartItems(cartItems);
+          }
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    loadCartData();
+  }, []);
 
   return (
     <View style={styles.container}>
