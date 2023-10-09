@@ -33,7 +33,7 @@ export default function CartPage({
 
   const handleCheckout = async () => {
     setIsLoading(true);
-    if (!isOffline) {
+    if (isOffline) {
       // Save cartItems and index to cache
       const cartData = { cartItems, index: id };
       try {

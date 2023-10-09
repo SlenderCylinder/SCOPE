@@ -4,7 +4,6 @@ import {
   Text,
   TouchableOpacity,
   ActivityIndicator,
-  Image,
   StyleSheet,
   Animated,
   Easing,
@@ -67,19 +66,19 @@ const LanguageSelectionScreen = ({ navigation }) => {
           <View style={styles.optionsContainer}>
             <TouchableOpacity
               style={styles.optionButton}
-              onPress={() => handleLanguageSelection("Sinhala")}
+              onPress={() => handleLanguageSelection("sin")}
             >
               <Text style={styles.optionText}>සිංහල</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.optionButton}
-              onPress={() => handleLanguageSelection("Tamil")}
+              onPress={() => handleLanguageSelection("tam")}
             >
               <Text style={styles.optionText}>தமிழ்</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.optionButton}
-              onPress={() => handleLanguageSelection("English")}
+              onPress={() => handleLanguageSelection("eng")}
             >
               <Text style={styles.optionText}>English</Text>
             </TouchableOpacity>

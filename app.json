@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "scope-qr-scanner",
-    "slug": "scope-qr-scanner",
+    "slug": "scope",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -28,6 +28,10 @@
       "favicon": "./assets/favicon.png"
     },
     "extra": {
-    }
+      "eas": {
+        "projectId": "427520fe-27ec-4368-98f2-2d8e56bbb5f2"
+      }
+    },
+    "owner": "shagar123"
   }
 }

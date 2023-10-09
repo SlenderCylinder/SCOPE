@@ -23,32 +23,19 @@ export default function Pin({ isOffline, setSelectedBeneficiary }) {
   const handleLogin = async () => {
     setIsLoading(true);
 
-    if (isOffline) {
-      try {
-        const beneficiary = beneficiariesData.find((b) => b.id === pin);
-        if (beneficiary) {
-          setSelectedBeneficiary(beneficiary);
-          navigation.navigate("BeneficiaryDetails");
-        } else {
-          Alert.alert("Beneficiary not found");
-        }
-      } catch (error) {
-        console.error(error);
-        Alert.alert("Error finding beneficiary");
-      } finally {
-        setIsLoading(false);
-      }
-    } else {
-      try {
-        const beneficiary = beneficiariesData.find((b) => b.id === pin);
-        const response = await api.get(`/beneficiary/${pin}`);
-        setSelectedBeneficiary(response.data);
+    try {
+      const beneficiary = beneficiariesData.find((b) => b.id === pin);
+      if (beneficiary) {
+        setSelectedBeneficiary(beneficiary);
         navigation.navigate("BeneficiaryDetails");
-      } catch (error) {
+      } else {
         Alert.alert("Beneficiary not found");
-      } finally {
-        setIsLoading(false);
       }
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Error finding beneficiary");
+    } finally {
+      setIsLoading(false);
     }
   };
   // This function checks whether the login button should be disabled
