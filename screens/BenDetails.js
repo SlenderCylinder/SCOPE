@@ -5,7 +5,6 @@ import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import items from "../api/comodities";
 import Card from "../components/Card";
 import CartButton from "../components/CartButton";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function BeneficiaryDetails({
   selectedBeneficiary,

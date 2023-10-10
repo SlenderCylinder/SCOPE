@@ -4,6 +4,14 @@
     "slug": "scope",
     "version": "1.0.0",
     "orientation": "portrait",
+    "plugins": [
+      [
+        "expo-updates",
+        {
+          "username": "shagar123"
+        }
+      ]
+    ],
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
@@ -32,6 +40,12 @@
         "projectId": "427520fe-27ec-4368-98f2-2d8e56bbb5f2"
       }
     },
-    "owner": "shagar123"
+    "owner": "shagar123",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/427520fe-27ec-4368-98f2-2d8e56bbb5f2"
+    }
   }
 }

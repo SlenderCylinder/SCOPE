@@ -10,7 +10,6 @@ import {
   ActivityIndicator,
   Alert,
 } from "react-native";
-import api from "../api/api";
 import { useNavigation } from "@react-navigation/native";
 import beneficiariesData from "../api/beneficiaries.json";
 
